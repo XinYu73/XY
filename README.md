@@ -1,2 +1,0 @@
-# XY
-new to programming
