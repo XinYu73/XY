@@ -1,5 +1,5 @@
 %记录一些matlab文件
-%粒子群算法（matlab实现
+%粒子群算法（matlab实现）
 function [xm,fv]=PSO(fitness,N,c1,c2,w,M,D)
 %c1, c2学习因子
 %w，惯性权重
@@ -56,3 +56,85 @@ disp(fv);
 disp('*****************狩猎行动完成***********************************');
 
 end
+免疫粒子群算法
+function [x,count,result]=PSO_immu(func,N,c1,c2,w,MaxDT,D,eps,DS,replaceP,minD)
+format long;
+%%%%%%%%%%%%%%%%%初始化条件%%%%%%%%%%%%%%%%%%%%%%%%
+%MaxDT 最大迭代次数
+%D 搜索空间维数
+%eps 设置精度
+%DS 每隔DS次循环就检查最优个体是否变优
+%replaceP 粒子的概率大于replaceP将被免疫取消
+%minD 粒子间的最小距离
+range=100;
+pbest=[];
+Psum=0;
+count =0;
+%%%%%%%%%%%初始化种群的个体%%%%%%%%%%%
+for i=1:N
+        x(i,:)=-range+2*range*rand(1,D);
+        v(i,:)=randn(1,D);
+end
+%%%%%%%%%%%%%%%%%初始化适应度
+for i=1:N
+    p(i)=feval(func,x(i,:));
+    y(i,:)=x(i,:);
+end
+%%%%%%%%%%%设1号粒子为全局最优
+pg=x(1,:);
+for i=2:N
+    if p(i)<feval(func,pg)
+        pg=x(i,:);
+    end
+end
+%%%%%%%%%%%%%%%%%%%带入循环
+for t=1:MaxDT
+    for i=1:N
+        v(i,:)=w*v(i,:)+c1*rand*(y(i,:)-x(i,:))+c2*rand*(pg-x(i,:));
+        x(i,:)=x(i,:)+v(i,:);
+        %%%%%%%%%%更新个体历史最优
+        if feval(func,x(i,:))<p(i)
+            p(i)=feval(func,x(i,:));
+            y(i,:)=x(i,:);
+        end
+        %%%%%%%%%%更新群体最优
+        if p(i)<feval(func,pg)
+            pg=y(i,:);
+        end
+        plot(pg(1),pg(2),'*');
+        hold on;
+        plot(x(:,1),x(:,2),'+');      
+    end
+    hold off;
+        pbest(t)=feval(func,pg);
+  
+       %%%%%%%%%%%%%%%%%开始免疫(如果每隔DS代没有变优）
+       
+       if t>DS&&mod(t,DS)==0&&(pbest(t-DS+1)-pbest(t))<eps
+           count=count+1;
+               for i=1:N
+                   Psum=Psum+p(i);
+               end
+               for  i=1:N
+                   for j=1:N
+                       distance(j)=abs(p(j)-p(i));
+                   end
+                   num=0;
+                   for j=1:N
+                       if distance(j)<minD
+                           num=num+1;
+                       end
+                   end
+                   PF(i)=p(N-i+1)/Psum;
+                   PD(i)=num/N;
+                   PR(i)=rand*PF(i)+(1-rand)*PD(i);
+               end
+               for i=1:N
+                   if PR(i)>replaceP
+                       x(i,:)=-range+2*range*rand(1,D);
+                end
+           end
+       end
+end
+x=pg;
+result=feval(func,pg);
