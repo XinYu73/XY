@@ -46,4 +46,110 @@ z=sort(z1,2);
     %公差计算
     F5=f5(:)-sum(f5)/i;
     disp((sum(F5.^2))^0.5);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%2.6评选举重总冠军%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear;
+%体重级别
+m=[56 62 69 77 85 94 105 ];
+%抓举世界纪录成绩；挺举世界纪录；总成绩
+y0=[138 168 305;153 182 327;165 198 358;176 210 380;187 218 394;188 233 418;200 237 436];
+%%
+%数据可视化
+%标准坐标系
+figure(1);
+subplot(1,2,1);
+for i=1:3
+plot(m,y0(:,i),'*');
+hold on ;
+end
+%对数坐标系
+subplot(1,2,2);
+for i=1:3
+loglog(m,y0(:,i));
+hold on;
+end
+%由图像，两种数据拟合方案
+%1.线型2.幂函数型 
+% 线型
+%polyfit 需要m,y 是同维的向量，同横同纵
+p=polyfit(m,y0(:,3)',1);
+Y1=polyval(p,m);
+subplot(1,2,1);
+scatter(m,Y1,"*");
+%poly2sym将多项式转化为严格的分式形式，vpa计算分数的值
+disp(vpa(poly2sym(p),3));
+%幂函数型
+%尝试利用粒子群算法求解y=k*x^(m)中k，m的值
+N=200;
+D=2;
+c1=0.1;
+c2=0.1;
+M=1000;
+w=0.01;
+for i=1:N
+    for j=1:D
+        if j==1
+        x(i,j)=20*rand;
+        v(i,j)=20*rand;
+        end
+        if j==2
+        x(i,j)=rand;
+        v(i,j)=rand;
+        end
+    end
+end
+for i=1:N 
+    p(i)=fitness(x(i,:),m,y0(:,3));
+    %初始粒子的自身历史最优位置为其自身的初始位置
+    y(i,:)=x(i,:);
+end
+%设第N个粒子的位置为全局最优
+pg=x(N,:);
+%初始粒子的位置优劣更新
+for i=1:N-1
+    if p(i)<fitness(pg,m,y0(:,3))
+       pg=y(i,:);
+    end
+end
+%粒子初始化完成，起飞
+figure(2);
+h=plot(m,y0(:,3),'*');
+for t=1:M
+    for i=1:N
+        for j=1:D
+        if j==1
+             v(i,j)=w*20*v(i,j)+c1*20*rand*(y(i,j)-x(i,j))+c2*20*rand*(pg(j)-x(i,j));
+             x(i,j)=x(i,j)+v(i,j);
+        end
+        if j==2
+             v(i,j)=w*v(i,j)+c1*rand*(y(i,j)-x(i,j))+c2*rand*(pg(j)-x(i,j));
+             x(i,j)=x(i,j)+v(i,j);
+        end
+        end
+        if fitness(x(i,:),m,y0(:,3))<p(i)%如果在新位置i号粒子更适应
+            %记录粒子新位置的适应情况
+            p(i)=fitness(x(i,:),m,y0(:,3));
+            %更新粒子的自身历史最优解
+            y(i,:)=x(i,:);
+        end
+        %更新全局最优解
+        if p(i)<fitness(pg,m,y0(:,3))
+            pg=y(i,:);
+        end
+    end
+ %本次运动最优
+        pbest(t)=fitness(pg,m,y0(:,3));
+        Y2=pg(1)*m.^(pg(2));
+        set(h,'YData',Y2);
+        drawnow;
+        
+end
+disp(pbest(t));
+disp(pg);
+%%
+function h=fitness(x,m,y0)
+          Y2=x(1)*m.^(x(2))-y0';
+          h=sum(Y2)/length(m);
+end
+%%%%%%%%%%%%%%%%评价
+可以实现动态演示，但k，m两个因子得不到满足条件的值，待优化
     
