@@ -2,9 +2,13 @@
 %记录一些latex练习
 %练习1
 \documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\geometry{a6paper,centering,scale=0.9}
 \title{lianxi}
 \author{zhaffgfgfnsna}
 \date{\today}
+\usepackage{graphicx}
+%插入graphicx宏包以添加插图功能
 \newtheorem{thm}{定理}
 \bibliographystyle{plain}
 %声明参考文献的格式
@@ -34,8 +38,6 @@
 %1    无参数\command
 %2     有n个参数：\command{org}{org2}
 %3    有可选参数：\command[可选]{org}
-
-
 %添加引用
 \begin{quote}
 \zihao{-4}
@@ -62,5 +64,58 @@ AB^2=BC^2+AC^2
 %上标^下标_,多个字符上下标{}
 举例
 $2^10=1024$以及$2^{10}=1024$
+%输入90度
+,$90^\circ$
+%使用图表
+%尝试插入图表，需要将图片放到包含源文件的源文件夹
+%注意空行，不要放到同一行
+
+\includegraphics[scale=0.1]{1.jpg}
+%[]可选参数，1.width  2.scale=放缩因子 3.height
+%除了很小的标志图像，避免将插图直接夹在文字之中
+\begin{figure}[ht]
+%figure 环境，即插图的浮动环境
+%ht可选参数，浮动体可以出现在here，top
+\centering
+\includegraphics[scale=0.15]{1.jpg}
+\caption{sfdljlskdjflsjdkf}
+%给插图加入序号以及标题
+\label{1}
+%给图形一个标签，方便以后的引用
+\end{figure}
+\begin{figure}[ht]
+%figure 环境，即插图的浮动环境
+%ht可选参数，浮动体可以出现在here，top
+\centering
+\includegraphics[scale=0.15]{1.jpg}
+\caption{sfdljlskdjflsjdkf}
+%给插图加入序号以及标题
+\label{1}
+%给图形一个标签，方便以后的引用
+\end{figure}
+%尝试插入图表
+%放到环境
+\begin{table}
+%表格：表格的行列，对齐模式，表格线
+%产生盒子
+\centering
+\begin{tabular}{|r|r|r|}
+%rrr三列，右对齐
+%||前后有竖直的表格线
+\hline
+%产生横线
+直角边$a$&直角边$b$&斜边$c$\\
+\hline
+ 3& 4& 5\\
+ \hline
+ 5& 12& 13\\
+\hline               
+\end{tabular}
+\qquad
+%产生大约两个M的共格
+($a^2+b^2=c^2$)
+\caption{勾股定理举例}
+\label{biao1}
+\end{table}
 \bibliography{math}
 \end{document}
